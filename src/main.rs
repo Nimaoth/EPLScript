@@ -8,6 +8,7 @@ mod expr;
 mod stmt;
 mod visitor;
 mod value;
+mod parser;
 
 use lexer::*;
 use token::*;
@@ -15,6 +16,7 @@ use expr::*;
 use stmt::*;
 use visitor::*;
 use value::*;
+use parser::*;
 
 macro_rules! mExprBinary {
     ($self:ident, $a:ident $op:tt $b:ident) => {
@@ -64,11 +66,20 @@ impl Visitor for SimpleInterpreter {
 }
 
 fn main() {
-    let lex = Lexer::new("");
-    for r in lex {
-        match r {
-            Ok(t) => println!("{:?}", t),
-            Err(err) => println!("[ERR] {}", err)
+    let mut lex = Lexer::new("print 6");
+    let mut parser = Parser::new(lex);
+
+    let print = parser.parsePrintStmt();
+
+    let mut inter = SimpleInterpreter{};
+
+    match print {
+        Ok(mut stmt) => {
+            println!("{:?}", stmt);
+            inter.visitStmt(&mut stmt);
+        },
+        Err(err) => {
+            println!("[ERR] {}", err);
         }
     }
 }

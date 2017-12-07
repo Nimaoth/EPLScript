@@ -83,6 +83,10 @@ impl Lexer
     fn toString(&self, index: usize, len: usize) -> String {
         self.chars.iter().skip(index).take(len).collect()
     }
+
+    fn isIdChar(c: char) -> bool {
+        (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
+    }
 }
 
 impl Iterator for Lexer
@@ -111,6 +115,29 @@ impl Iterator for Lexer
                 self.skipWC(true);
                 Some(Ok(Token {
                     ttype: TokenType::NewLine,
+                    line: line,
+                    column: col
+                }))
+            },
+
+            c if Self::isIdChar(c) => {
+                let start = self.index - 1;
+                while self.index < self.chars.len() {
+                    let c = self.chars[self.index];
+                    if !Self::isIdChar(c) && !Self::isDigit(c) {
+                        break;
+                    }
+
+                    self.index += 1;
+                    self.col += 1;
+                }
+                let s = self.toString(start, self.index - start);
+                let ttype = match &s[..] {
+                    "print" => TokenType::Kprint,
+                    _ => TokenType::Identifier(s)
+                };
+                Some(Ok(Token {
+                    ttype: ttype,
                     line: line,
                     column: col
                 }))

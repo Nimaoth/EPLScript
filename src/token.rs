@@ -22,6 +22,7 @@ pub enum TokenType
     Kloop,
     Kbreak,
     Kcontinue,
+    Kprint,
     
     // operators
     Plus,
