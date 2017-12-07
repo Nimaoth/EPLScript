@@ -69,7 +69,7 @@ fn main() {
     let mut lex = Lexer::new("print 6");
     let mut parser = Parser::new(lex);
 
-    let print = parser.parsePrintStmt();
+    let print = parser.parseStmt();
 
     let mut inter = SimpleInterpreter{};
 

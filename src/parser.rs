@@ -19,25 +19,40 @@ impl Parser {
         }
     }
 
-    pub fn parsePrintStmt(&mut self) -> Result<Stmt, String> {
+    fn skipNewLine(&mut self) {
+        let isNL = if let Some(Ok(t)) = self.lex.peek() {
+            if let TokenType::NewLine = t.ttype { true } else { false }
+        } else {
+            false
+        };
+        if isNL {
+            self.lex.next();
+        }
+    }
+
+    pub fn parseStmt(&mut self) -> Result<Stmt, String> {
         match self.lex.next() {
             Some(result) => {
                 match result {
                     Ok(token) => {
                         match token.ttype {
-                            TokenType::Kprint => {
-                                match self.parseExpr() {
-                                    Ok(expr) => Ok(Stmt::Print(expr)),
-                                    Err(err) => Err(format!("({}:{}) Failed to parse print statement: {}", token.line, token.column, err))
-                                }
-                            },
-                            _ => Err(format!("({}:{}) Failed to parse print statement: unexpected token {:?}", token.line, token.column, token.ttype))
+                            TokenType::Kprint => self.parsePrintStmt(&token),
+                            _ => Err(format!("({}:{}) Failed to parse statement: unexpected token {:?}", token.line, token.column, token.ttype))
                         }
                     },
-                    Err(err) => Err(format!("Failed to parse print statement: {}", err))
+                    Err(err) => Err(format!("Failed to parse statement: {}", err))
                 }
             },
-            None => Err(format!("Failed to parse print statement: reached end of file"))
+            None => Err(format!("Failed to parse statement: reached end of file"))
+        }
+    }
+
+    fn parsePrintStmt(&mut self, token: &Token) -> Result<Stmt, String> {
+        self.skipNewLine();
+
+        match self.parseExpr() {
+            Ok(expr) => Ok(Stmt::Print(expr)),
+            Err(err) => Err(format!("({}:{}) Failed to parse print statement: {}", token.line, token.column, err))
         }
     }
     

@@ -6,7 +6,9 @@ pub struct Lexer
     chars: Vec<char>,
     index: usize,
     line: usize,
-    col: usize
+    col: usize,
+
+    buff: Option<Token>
 }
 
 impl Lexer
@@ -17,11 +19,12 @@ impl Lexer
             chars: code.chars().collect(),
             index: 0,
             line: 1,
-            col: 1
+            col: 1,
+            buff: None
         }
     }
 
-    fn peek(&self, index: i32) -> char {
+    fn peekChar(&self, index: i32) -> char {
         let i = (self.index as i32 + index) as usize;
         if i < 0 || i >= self.chars.len() {
             return '\0';
@@ -36,10 +39,10 @@ impl Lexer
             let c = self.chars[self.index];
 
             match c {
-                '/' if self.peek(1) == '/' => {
+                '/' if self.peekChar(1) == '/' => {
                     self.index += 1;
                     while self.index + 1 < self.chars.len() {
-                        if self.peek(1) == '\n' {
+                        if self.peekChar(1) == '\n' {
                             break;
                         }
                         self.index += 1;
@@ -87,14 +90,8 @@ impl Lexer
     fn isIdChar(c: char) -> bool {
         (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
     }
-}
 
-impl Iterator for Lexer
-{
-    type Item = Result<Token, String>;
-
-    fn next(&mut self) -> Option<Result<Token, String>>
-    {
+    fn parseToken(&mut self) -> Option<Result<Token, String>> {
         self.skipWC(false);
 
         if self.index >= self.chars.len() {
@@ -271,15 +268,49 @@ impl Iterator for Lexer
                         }
                     },
                     State::err(ref e) => {
-                        Some(Err(format!("({}:{}) {}: {:?}", line, col, e, self.peek(-1))))
+                        Some(Err(format!("({}:{}) {}: {:?}", line, col, e, self.peekChar(-1))))
                     }
                     _ => {
-                        Some(Err(format!("({}:{}) Unexpected character in number literal: {:?}", line, col, self.peek(-1))))
+                        Some(Err(format!("({}:{}) Unexpected character in number literal: {:?}", line, col, self.peekChar(-1))))
                     }
                 }
             },
             
             _ => Some(Err(format!("({}:{}) Unrecognized character: {}", self.line, self.col, c)))
         }
+    }
+
+    pub fn peek(&mut self) -> Option<Result<&Token, String>> {
+        if let Some(ref t) = self.buff {
+            return Some(Ok(t));
+        }
+
+        match self.parseToken() {
+            Some(r) => {
+                match r {
+                    Ok(t) => {
+                        self.buff = Some(t);
+                        Some(Ok(self.buff.as_ref().unwrap()))
+                    },
+                    Err(e) => Some(Err(e))
+                }
+            },
+            None => None
+        }
+    }
+}
+
+impl Iterator for Lexer
+{
+    type Item = Result<Token, String>;
+
+    
+
+    fn next(&mut self) -> Option<Result<Token, String>> {
+        if let Some(t) = self.buff.take() {
+            return Some(Ok(t));
+        }
+
+        self.parseToken()
     }
 }
