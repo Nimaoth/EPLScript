@@ -1,0 +1,60 @@
+// single line comment
+
+/*
+    multi line comment
+*/
+
+// variable declaration
+// [mut] <type> <name> = <value>
+int a = 3                   // integer
+float b = 4.4               // floating point number
+bool c = true               // true or false
+string d = "Hello"          // string of character (text)
+char e = 'u'                // one character
+auto g = 1..4               // auto detect type, in this case 'range'
+
+
+// assignment
+// <name> = <value>
+a = 4
+
+// if expression
+// if <condition> {
+//      code
+// }
+if b {
+
+}
+a = if b { 1 } else { 2 }
+
+// for loop
+for i in 1..3 {
+
+}
+
+// loop forever
+loop {
+
+}
+
+// loop while condition is true
+while a < 10 {
+
+}
+
+// function definition
+fun foo(int a, int b) -> int {
+    return a + b
+}
+
+//
+a = 1 + 2         // a = 1 + 2;
+
+a = 1 +
+2                 // a = 1 + 2;
+
+a = 1
++2                // a = 1; +2; <- warning, unused value
+
+a = 1 \
++2                // a = 1 + 2; \ extends to next line

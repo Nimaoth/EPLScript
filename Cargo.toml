@@ -1,0 +1,6 @@
+[package]
+name = "eplscipt"
+version = "0.1.0"
+authors = ["Nico Otremba <nico.otremba@mmi-media.de>"]
+
+[dependencies]
