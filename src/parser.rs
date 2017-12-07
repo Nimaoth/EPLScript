@@ -20,7 +20,7 @@ impl Parser {
     }
 
     fn skipNewLine(&mut self) {
-        let isNL = if let Some(Ok(t)) = self.lex.peek() {
+        let isNL = if let Some(t) = self.lex.peek() {
             if let TokenType::NewLine = t.ttype { true } else { false }
         } else {
             false
@@ -32,15 +32,10 @@ impl Parser {
 
     pub fn parseStmt(&mut self) -> Result<Stmt, String> {
         match self.lex.next() {
-            Some(result) => {
-                match result {
-                    Ok(token) => {
-                        match token.ttype {
-                            TokenType::Kprint => self.parsePrintStmt(&token),
-                            _ => Err(format!("({}:{}) Failed to parse statement: unexpected token {:?}", token.line, token.column, token.ttype))
-                        }
-                    },
-                    Err(err) => Err(format!("Failed to parse statement: {}", err))
+            Some(token) => {
+                match token.ttype {
+                    TokenType::Kprint => self.parsePrintStmt(&token),
+                    _ => Err(format!("({}:{}) Failed to parse statement: unexpected token {:?}", token.line, token.column, token.ttype))
                 }
             },
             None => Err(format!("Failed to parse statement: reached end of file"))
@@ -63,17 +58,10 @@ impl Parser {
     pub fn parsePrimary(&mut self) -> Result<Expr, String> {
         use TokenType::*;
         match self.lex.next() {
-            Some(result) => {
-                match result {
-                    Ok(token) => {
-                        match token.ttype {
-                            IntLiteral(i) => Ok(Expr::Int(i)),
-                            _ => Err(format!("({}:{}) Failed to parse primary expression: unexpected token {:?}", token.line, token.column, token.ttype))
-                        }
-                    },
-                    Err(err) => {
-                        Err(format!("Failed to parse primary expression: {}", err))
-                    }
+            Some(token) => {
+                match token.ttype {
+                    IntLiteral(i) => Ok(Expr::Int(i)),
+                    _ => Err(format!("({}:{}) Failed to parse primary expression: unexpected token {:?}", token.line, token.column, token.ttype))
                 }
             },
             Option::None => {

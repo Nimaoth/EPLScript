@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 #![allow(unused_macros)]
+#![allow(unused_imports)]
 
 mod lexer;
 mod token;
@@ -44,8 +45,7 @@ impl Visitor for SimpleInterpreter {
         match stmt {
             &mut Print(ref mut expr) => {
                 println!("{:?}", self.visitExpr(expr));
-            },
-            _ => ()
+            }
         }
     }
 
@@ -58,28 +58,31 @@ impl Visitor for SimpleInterpreter {
             &mut Sub(ref mut a, ref mut b) => mExprBinary!(self, a - b),
             &mut Mul(ref mut a, ref mut b) => mExprBinary!(self, a * b),
             &mut Div(ref mut a, ref mut b) => mExprBinary!(self, a / b),
-            &mut Rem(ref mut a, ref mut b) => mExprBinary!(self, a % b),
-
-            _ => Value::None 
+            &mut Rem(ref mut a, ref mut b) => mExprBinary!(self, a % b)
         }
     }
 }
 
 fn main() {
-    let mut lex = Lexer::new("print 6");
-    let mut parser = Parser::new(lex);
+    let lex = Lexer::new("123");
 
-    let print = parser.parseStmt();
-
-    let mut inter = SimpleInterpreter{};
-
-    match print {
-        Ok(mut stmt) => {
-            println!("{:?}", stmt);
-            inter.visitStmt(&mut stmt);
-        },
-        Err(err) => {
-            println!("[ERR] {}", err);
-        }
+    for s in lex {
+        println!("{:?}", s);
     }
+
+    // let mut parser = Parser::new(lex);
+
+    // let print = parser.parseStmt();
+
+    // let mut inter = SimpleInterpreter{};
+
+    // match print {
+    //     Ok(mut stmt) => {
+    //         println!("{:?}", stmt);
+    //         inter.visitStmt(&mut stmt);
+    //     },
+    //     Err(err) => {
+    //         println!("[ERR] {}", err);
+    //     }
+    // }
 }

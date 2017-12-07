@@ -5,6 +5,7 @@
 pub enum TokenType 
 {
     None,
+    Error(String),
 
     IntLiteral(i64),
     FloatLiteral(f64),
